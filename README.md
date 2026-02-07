@@ -1,18 +1,19 @@
 # LoRaWAN Packet Decoder
 
-Web-based tool for decoding and analyzing **LoRaWAN 1.0.x** packets.  
-Currently supports **Confirmed and Unconfirmed uplink/downlink packets** only.  
+Web-based tool for decoding and analyzing **LoRaWAN** packets.  
+Currently supports **LoRaWAN 1.0.x packets** only.  
 
 ## Features
 
-- Parse LoRaWAN 1.0.x packets (ConfUp, ConfDown, UnconfUp, UnconfDown)  
-- Decrypt FRMPayload using NwkSKey
+- Parse LoRaWAN 1.0.x packets
+- Decrypt FRMPayload
+- Decrypt JoinAccept
 - Verify MIC (Message Integrity Code)  
 - Handle FCnt context for frame counter rollover   
 
 ### TODO / Future plans
  
-- [ ] Support JoinRequest / JoinAccept for 1.0.x
+- [x] Support JoinRequest / JoinAccept for 1.0.x
 - [ ] Support LoRaWAN 1.1 packets (ConfUp, ConfDown, UnconfUp, UnconfDown)  
 - [ ] Support RejoinRequest / JoinAccept for 1.1  
 - [ ] Decode MAC Commands on a separate page  
@@ -30,6 +31,7 @@ https://reflexios.github.io/lorawan-packet-parser
    - `Packet (HEX)` – raw LoRaWAN packet in hexadecimal  
    - `NwkSKey` – network session key (16 bytes)  
    - `AppSKey` – application session key (16 bytes)  
+   - `AppKey` – application root key (16 bytes)
    - Optional `FCntUp` / `FCntDown` – device context for frame counter  
 3. Click **Decode packet** to parse, verify, and decrypt.  
 4. Click **Clear all** to reset inputs.  
@@ -37,5 +39,5 @@ https://reflexios.github.io/lorawan-packet-parser
 ## Technologies
 
 - HTML, CSS, JavaScript (ES6)  
-- [asmCrypto.js](https://github.com/asmcrypto/asmcrypto.js) – AES-CMAC & AES-CTR for payload encryption/decryption  
+- [asmCrypto.js](https://github.com/asmcrypto/asmcrypto.js) – AES-CMAC & AES-CTR  
 - Lightweight front-end with no server-side dependencies
