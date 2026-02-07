@@ -1,4 +1,114 @@
 /**
+ * Compute MIC for JoinRequest
+ * @param {Uint8Array} key - AppKey for LoRaWAN 1.0.x (16 bytes)
+ * @param {number} mhdr - MHDR byte
+ * @param {Uint8Array} joinEuiLE - JoinEUI 8 bytes (LE)
+ * @param {Uint8Array} devEuiLE - DevEUI 8 bytes (LE)
+ * @param {number} devNonce - DevNonce (16-bit)
+ * @returns {Uint8Array} MIC 4 bytes
+ */
+window.computeMICJoinRequest = function (key, mhdr, joinEuiLE, devEuiLE, devNonce) {
+  if (key.length !== 16) {
+    throw new Error(
+      I18N.t("errors.mustBeBytes", {
+        name: "AppKey",
+        bytes: 16,
+      }),
+    );
+  }
+  if (joinEuiLE.length !== 8) {
+    throw new Error(
+      I18N.t("errors.mustBeBytes", {
+        name: "JoinEUI",
+        bytes: 8,
+      }),
+    );
+  }
+  if (devEuiLE.length !== 8) {
+    throw new Error(
+      I18N.t("errors.mustBeBytes", {
+        name: "DevEUI",
+        bytes: 8,
+      }),
+    );
+  }
+
+  // Block for CMAC: MHDR + JoinEUI + DevEUI + DevNonce
+  const block = new Uint8Array(19);
+  let offset = 0;
+
+  block[offset++] = mhdr;
+
+  // JoinEUI (8 bytes LE)
+  for (let i = 0; i < 8; i++) {
+    block[offset++] = joinEuiLE[i];
+  }
+
+  // DevEUI (8 bytes LE)
+  for (let i = 0; i < 8; i++) {
+    block[offset++] = devEuiLE[i];
+  }
+
+  // DevNonce (2 bytes LE)
+  block[offset++] = devNonce & 0xff;
+  block[offset++] = (devNonce >> 8) & 0xff;
+
+  // AES-CMAC
+  const fullCmac = asmCrypto.AES_CMAC.bytes(block, key);
+
+  return new Uint8Array(fullCmac.slice(0, 4));
+};
+
+/**
+ * Verify MIC for JoinRequest packet
+ * @param {Array} packetBytes - full packet
+ * @param {string} appKeyHex - AppKey in HEX
+ * @returns {object} {valid: boolean, computed: Uint8Array, received: Uint8Array}
+ */
+window.verifyMICJoinRequest = function (packetBytes, appKeyHex) {
+  if (!appKeyHex || appKeyHex.trim() === "") {
+    throw new Error(I18N.t("errors.required", { name: "AppKey" }));
+  }
+
+  const appKey = new Uint8Array(hexToBytes(appKeyHex));
+
+  if (packetBytes.length !== 23) {
+    throw new Error(
+      I18N.t("errors.joinRequestLength", { len: packetBytes.length }),
+    );
+  }
+
+  const mhdr = packetBytes[0];
+  const joinEuiLE = new Uint8Array(packetBytes.slice(1, 9));
+  const devEuiLE = new Uint8Array(packetBytes.slice(9, 17));
+  const devNonce = bytesToInt(packetBytes.slice(17, 19));
+
+  const receivedMIC = new Uint8Array(packetBytes.slice(19, 23));
+
+  const computedMIC = computeMICJoinRequest(
+    appKey,
+    mhdr,
+    joinEuiLE,
+    devEuiLE,
+    devNonce,
+  );
+
+  let valid = true;
+  for (let i = 0; i < 4; i++) {
+    if (computedMIC[i] !== receivedMIC[i]) {
+      valid = false;
+      break;
+    }
+  }
+
+  return {
+    valid: valid,
+    computed: computedMIC,
+    received: receivedMIC,
+  };
+};
+
+/**
  * Compute MIC LoRaWAN 1.0.x
  * @param {Uint8Array} nwkSKey  16 bytes
  * @param {number} direction   0 = uplink, 1 = downlink

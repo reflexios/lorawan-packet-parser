@@ -1,4 +1,55 @@
 window.formatPacketOutput = function (packet, micResult, decryptResult) {
+  // Check if this is a JoinRequest packet
+  if (packet.MType === 0x00) {
+    return formatJoinRequestOutput(packet, micResult);
+  }
+
+  // Format data packet (Unconfirmed/Confirmed Up/Down)
+  return formatDataPacketOutput(packet, micResult, decryptResult);
+};
+
+function formatJoinRequestOutput(packet, micResult) {
+  let output = `✅ ${I18N.t("result.success")}\n\n`;
+  output += "═══════════════════════════════════════\n";
+  output += `${I18N.t("labels.packetStructure")}:\n`;
+  output += "═══════════════════════════════════════\n\n";
+
+  output += `📋 MHDR: 0x${packet.MHDR.toString(16).padStart(2, "0").toUpperCase()}\n`;
+  output += `   • MType: ${packet.MTypeStr} (0x${packet.MType.toString(16).padStart(2, "0").toUpperCase()})\n`;
+  output += `   • Major: ${packet.Major}\n\n`;
+
+  output += `🔑 JoinEUI (AppEUI): ${packet.JoinEuiHex.toUpperCase()}\n`;
+  output += `   • LE (wire): ${bytesToHex(packet.JoinEuiLE).toUpperCase()}\n\n`;
+
+  output += `🆔 DevEUI: ${packet.DevEuiHex.toUpperCase()}\n`;
+  output += `   • LE (wire): ${bytesToHex(packet.DevEuiLE).toUpperCase()}\n\n`;
+
+  output += `🎲 DevNonce: ${packet.DevNonce}\n`;
+  output += `   • LE (wire): ${bytesToHex(packet.DevNonceBytes).toUpperCase()}\n\n`;
+
+  output += `🔒 MIC: ${packet.MICHex.toUpperCase()}\n`;
+
+  if (micResult) {
+    output += "\n═══════════════════════════════════════\n";
+    output += `${I18N.t("result.micCheck")}:\n`;
+    output += "═══════════════════════════════════════\n\n";
+
+    if (micResult.valid) {
+      output += `✅ ${I18N.t("result.micValid")}!\n`;
+      output += `   • ${I18N.t("labels.micReceived")}: ${bytesToHex(Array.from(micResult.received)).toUpperCase()}\n`;
+      output += `   • ${I18N.t("labels.micComputed")}: ${bytesToHex(Array.from(micResult.computed)).toUpperCase()}\n`;
+    } else {
+      output += `❌ ${I18N.t("result.micInvalid")}!\n`;
+      output += `   • ${I18N.t("labels.micReceived")}: ${bytesToHex(Array.from(micResult.received)).toUpperCase()}\n`;
+      output += `   • ${I18N.t("labels.micComputed")}: ${bytesToHex(Array.from(micResult.computed)).toUpperCase()}\n\n`;
+      output += `⚠️ ${I18N.t("labels.possibleWrongKey")}\n`;
+    }
+  }
+
+  return output;
+}
+
+function formatDataPacketOutput(packet, micResult, decryptResult) {
   let output = `✅ ${I18N.t("result.success")}\n\n`;
   output += "═══════════════════════════════════════\n";
   output += `${I18N.t("labels.packetStructure")}:\n`;

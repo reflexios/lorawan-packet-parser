@@ -37,7 +37,13 @@
     "payloadEmpty": "Payload is empty, nothing to decrypt",
     "decryptFailed": "Payload decryption error",
     "mustBeBytes": "{name} must be {bytes} bytes",
-    "required": "{name} is required"
+    "required": "{name} is required",
+    "proprietaryPacket": "Proprietary packets cannot be processed",
+    "unsupportedPacketType": "Unsupported packet type: {type}",
+    "joinNotSupported": "Join/Rejoin packets are not yet supported in this version",
+    "joinAcceptNotSupported": "JoinAccept packets are not yet supported in this version",
+    "joinRequestLength": "JoinRequest must be exactly 23 bytes, got {len}",
+    "fOptsLenTooBig": "FOpts length too large: {len} (maximum 15)"
   },
 
   "labels": {
@@ -54,6 +60,7 @@
     "usedFcnt": "Used FCnt",
     "packetFcnt": "FCnt from packet (16-bit)",
     "micFcnt": "FCnt for MIC (32-bit)",
-    "possibleContextError": "Possibly incorrect FCnt context or key"
+    "possibleContextError": "Possibly incorrect FCnt context or key",
+    "possibleWrongKey": "Possibly incorrect AppKey"
   }
 }
