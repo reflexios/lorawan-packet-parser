@@ -1,18 +1,19 @@
 # LoRaWAN Packet Decoder
 
-Web-based tool for decoding and analyzing **LoRaWAN 1.0.x** packets.  
-Currently supports **Confirmed and Unconfirmed uplink/downlink packets** only.  
+Web-based tool for decoding and analyzing **LoRaWAN** packets.  
+Currently supports **LoRaWAN 1.0.x packets** only.  
 
 ## Features
 
-- Parse LoRaWAN 1.0.x packets (ConfUp, ConfDown, UnconfUp, UnconfDown)  
+- Parse LoRaWAN 1.0.x packets
 - Decrypt FRMPayload
+- Decrypt JoinAccept
 - Verify MIC (Message Integrity Code)  
 - Handle FCnt context for frame counter rollover   
 
 ### TODO / Future plans
  
-- [ ] Support JoinRequest / JoinAccept for 1.0.x
+- [x] Support JoinRequest / JoinAccept for 1.0.x
 - [ ] Support LoRaWAN 1.1 packets (ConfUp, ConfDown, UnconfUp, UnconfDown)  
 - [ ] Support RejoinRequest / JoinAccept for 1.1  
 - [ ] Decode MAC Commands on a separate page  
