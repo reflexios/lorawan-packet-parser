@@ -6,7 +6,7 @@ Currently supports **Confirmed and Unconfirmed uplink/downlink packets** only.
 ## Features
 
 - Parse LoRaWAN 1.0.x packets (ConfUp, ConfDown, UnconfUp, UnconfDown)  
-- Decrypt FRMPayload using NwkSKey
+- Decrypt FRMPayload
 - Verify MIC (Message Integrity Code)  
 - Handle FCnt context for frame counter rollover   
 
@@ -30,6 +30,7 @@ https://reflexios.github.io/lorawan-packet-parser
    - `Packet (HEX)` – raw LoRaWAN packet in hexadecimal  
    - `NwkSKey` – network session key (16 bytes)  
    - `AppSKey` – application session key (16 bytes)  
+   - `AppKey` – application root key (16 bytes)
    - Optional `FCntUp` / `FCntDown` – device context for frame counter  
 3. Click **Decode packet** to parse, verify, and decrypt.  
 4. Click **Clear all** to reset inputs.  
@@ -37,5 +38,5 @@ https://reflexios.github.io/lorawan-packet-parser
 ## Technologies
 
 - HTML, CSS, JavaScript (ES6)  
-- [asmCrypto.js](https://github.com/asmcrypto/asmcrypto.js) – AES-CMAC & AES-CTR for payload encryption/decryption  
+- [asmCrypto.js](https://github.com/asmcrypto/asmcrypto.js) – AES-CMAC & AES-CTR  
 - Lightweight front-end with no server-side dependencies
