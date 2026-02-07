@@ -40,9 +40,8 @@
     "required": "{name} is required",
     "proprietaryPacket": "Proprietary packets cannot be processed",
     "unsupportedPacketType": "Unsupported packet type: {type}",
-    "joinNotSupported": "Join/Rejoin packets are not yet supported in this version",
-    "joinAcceptNotSupported": "JoinAccept packets are not yet supported in this version",
     "joinRequestLength": "JoinRequest must be exactly 23 bytes, got {len}",
+    "joinAcceptLength": "JoinAccept must be exactly 17/33 bytes, got {len}",
     "fOptsLenTooBig": "FOpts length too large: {len} (maximum 15)"
   },
 

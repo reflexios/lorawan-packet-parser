@@ -11,13 +11,16 @@ window.hexToBytes = function (hex) {
 };
 
 window.bytesToHex = function (bytes) {
-  return bytes.map((b) => b.toString(16).padStart(2, "0")).join("");
+  return Array.from(bytes, b =>
+    b.toString(16).padStart(2, "0")
+  ).join("");
 };
 
 window.reverseBytes = function (bytes) {
   return bytes.slice().reverse();
 };
 
+// from int from LE bytes
 window.bytesToInt = function (bytes) {
   let result = 0;
   for (let i = 0; i < bytes.length; i++) {
