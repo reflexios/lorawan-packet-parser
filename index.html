@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-i18n="app.title"></title>
+    <link rel="stylesheet" href="css/style.css" />
+
+    <!-- asmCrypto -->
+    <script src="https://cdn.jsdelivr.net/npm/asmcrypto.js@2.3.2/asmcrypto.all.es5.min.js"></script>
+
+    <script src="js/constants.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/crypto.js"></script>
+    <script src="js/parser.js"></script>
+    <script src="js/formatter.js"></script>
+    <script src="js/ui.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1 data-i18n="app.title"></h1>
+      <p class="subtitle" data-i18n="app.subtitle"></p>
+
+      <div class="section">
+        <div class="section-title" data-i18n="input.packetHex"></div>
+        <input
+          type="text"
+          id="packetHex"
+          placeholder="40F17DBE4900020001954378762B11FF0D"
+        />
+        <div class="input-hint" data-i18n="input.packetHexHint"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">NwkSKey</div>
+        <input
+          type="text"
+          id="nwkSKey"
+          placeholder="44024241ed4ce9a68c6a8bc055233fd3"
+        />
+
+        <div class="section-title" style="margin-top: 15px">AppSKey</div>
+        <input
+          type="text"
+          id="appSKey"
+          placeholder="ec925802ae430ca77fd3dd73cb2cc588"
+        />
+      </div>
+
+      <div class="section">
+        <div class="section-title" data-i18n="input.context"></div>
+        <div
+          class="input-hint"
+          style="margin-bottom: 10px"
+          data-i18n="input.contextHint"
+        ></div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px">
+          <div>
+            <label
+              style="
+                font-size: 13px;
+                color: #666;
+                margin-bottom: 5px;
+                display: block;
+              "
+              >FCntUp (32-bit)</label
+            >
+            <input type="text" id="fcntUp" placeholder="example: 65537" />
+          </div>
+          <div>
+            <label
+              style="
+                font-size: 13px;
+                color: #666;
+                margin-bottom: 5px;
+                display: block;
+              "
+              >FCntDown (32-bit)</label
+            >
+            <input type="text" id="fcntDown" placeholder="example: 1024" />
+          </div>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button
+          class="btn-primary"
+          id="decodeBtn"
+          data-i18n="buttons.decode"
+        ></button>
+        <button
+          class="btn-secondary"
+          id="clearAllBtn"
+          data-i18n="buttons.clear"
+        ></button>
+      </div>
+
+      <div class="result-box" id="result">
+        <pre data-i18n="result.empty"></pre>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script src="js/i18n.js"></script>
+<script>
+  (async () => {
+    await I18N.load("en");
+
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      el.textContent = I18N.t(el.dataset.i18n);
+    });
+  })();
+</script>

@@ -1,0 +1,59 @@
+{
+  "app": {
+    "title": "LoRaWAN Packet Decoder",
+    "subtitle": "Decode and analyze LoRaWAN packets"
+  },
+
+  "input": {
+    "packetHex": "Packet (HEX)",
+    "packetHexHint": "Enter packet in hexadecimal format",
+    "context": "Device context (optional)",
+    "contextHint": "For frame counter rollover. If empty, FCnt from packet is used",
+    "fcntUp": "FCntUp (32-bit)",
+    "fcntDown": "FCntDown (32-bit)",
+    "example": "example"
+  },
+
+  "buttons": {
+    "decode": "Decode packet",
+    "clear": "Clear all"
+  },
+
+  "result": {
+    "empty": "Decoding result will appear here...",
+    "success": "Packet successfully decoded!",
+    "micCheck": "MIC verification",
+    "micValid": "MIC valid",
+    "micInvalid": "MIC mismatch"
+  },
+
+  "errors": {
+    "hexLength": "Invalid HEX string length",
+    "packetTooShort": "Packet is too short: {len} bytes (minimum 12)",
+    "unknownMType": "Unknown MType: {value}",
+    "enterHex": "Please enter HEX packet",
+    "fcntUpInvalid": "FCntUp must be a positive number",
+    "fcntDownInvalid": "FCntDown must be a positive number",
+    "payloadEmpty": "Payload is empty, nothing to decrypt",
+    "decryptFailed": "Payload decryption error",
+    "mustBeBytes": "{name} must be {bytes} bytes",
+    "required": "{name} is required"
+  },
+
+  "labels": {
+    "packetStructure": "PACKET STRUCTURE",
+    "direction": "Direction",
+    "uplink": "uplink",
+    "downlink": "downlink",
+    "keyUsed": "Key used",
+    "sourcePacket": "Source: value from packet",
+    "sourceContext": "Source: Network Server context",
+    "tryContext": "Try providing FCntUp / FCntDown from Network Server",
+    "micReceived": "Received MIC",
+    "micComputed": "Computed MIC",
+    "usedFcnt": "Used FCnt",
+    "packetFcnt": "FCnt from packet (16-bit)",
+    "micFcnt": "FCnt for MIC (32-bit)",
+    "possibleContextError": "Possibly incorrect FCnt context or key"
+  }
+}
