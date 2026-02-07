@@ -18,6 +18,11 @@ Currently supports **Confirmed and Unconfirmed uplink/downlink packets** only.
 - [ ] Decode MAC Commands on a separate page  
 - [ ] Multi-language UI support (i18n)
 
+## Live Demo
+
+The decoder is also hosted online via **GitHub Pages**:  
+https://reflexios.github.io/lorawan-packet-parser
+
 ## Usage
 
 1. Open `index.html` in a modern browser.  
