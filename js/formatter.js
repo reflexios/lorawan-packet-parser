@@ -146,7 +146,16 @@ function formatDataPacketOutput(packet, micResult, decryptResult) {
   output += `   • LE (wire): ${bytesToHex(packet.FCntBytes).toUpperCase()}\n\n`;
 
   if (packet.FOpts.length > 0) {
-    output += `📦 FOpts: ${packet.FOptsHex.toUpperCase()} (${packet.FOpts.length} bytes)\n\n`;
+    output += `📦 FOpts: ${packet.FOptsHex.toUpperCase()} (${packet.FOpts.length} bytes)\n`;
+
+    // Show decrypted FOpts if available (LoRaWAN 1.1)
+    if (packet.FOptsDecrypted) {
+      output += `   🔓 Decrypted: ${packet.FOptsDecryptedHex.toUpperCase()}\n`;
+    } else if (packet.FOptsDecryptError) {
+      output += `   ⚠️ Decrypt error: ${packet.FOptsDecryptError}\n`;
+    }
+
+    output += '\n';
   }
 
   if (packet.FPort !== null) {
