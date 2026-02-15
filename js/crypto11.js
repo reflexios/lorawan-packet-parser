@@ -253,6 +253,148 @@ window.verifyMIC11 = function(
 };
 
 /**
+ * Decrypt FOpts for LoRaWAN 1.1
+ * @param {Uint8Array} nwkSEncKey - NwkSEncKey (16 bytes)
+ * @param {number} direction - 0 = uplink, 1 = downlink
+ * @param {number|null} fport - FPort from packet (null if absent)
+ * @param {Uint8Array} devAddr - DevAddr 4 bytes (LE)
+ * @param {number} fcnt - Full FCnt (32-bit)
+ * @param {Uint8Array} fopts - Encrypted FOpts
+ * @param {boolean} useErrata - true = errata mode, false = legacy mode (default)
+ * @returns {Uint8Array} Decrypted FOpts
+ */
+window.decryptFOpts11 = function(nwkSEncKey, direction, fport, devAddr, fcnt, fopts, useErrata) {
+  if (nwkSEncKey.length !== 16) {
+    throw new Error(I18N.t("errors.mustBeBytes", { name: "NwkSEncKey", bytes: 16 }));
+  }
+  if (devAddr.length !== 4) {
+    throw new Error(I18N.t("errors.mustBeBytes", { name: "DevAddr", bytes: 4 }));
+  }
+  if (fopts.length === 0) {
+    return new Uint8Array(0);
+  }
+  if (fopts.length > 15) {
+    throw new Error("FOpts length cannot exceed 15 bytes");
+  }
+  if (fport === 0 && fopts.length > 0) {
+    throw new Error("FPort cannot be 0 when FOpts is present");
+  }
+
+  // Set byte_4 and byte_15 based on mode
+  let byte4 = 0x00;
+  let byte15 = 0x00;
+
+  if (useErrata) {
+    // Errata mode (corrected)
+    byte4 = 0x01; // Default: FCntUp or NFCntDown
+    byte15 = 0x01; // Always 0x01 in errata mode
+
+    // If downlink AND FPort is present (FPort > 0), use AFCntDown
+    if (direction === 1 && fport !== null && fport > 0) {
+      byte4 = 0x02;
+    }
+  }
+  // else: Legacy mode - byte4 and byte15 remain 0x00
+
+  // Build Block A
+  const blockA = new Uint8Array(16);
+  blockA[0] = 0x01; // Always 0x01
+  blockA[4] = byte4;
+  blockA[5] = direction & 0xFF;
+  blockA[6] = devAddr[0]; // LSB
+  blockA[7] = devAddr[1];
+  blockA[8] = devAddr[2];
+  blockA[9] = devAddr[3]; // MSB
+  blockA[10] = fcnt & 0xFF;
+  blockA[11] = (fcnt >> 8) & 0xFF;
+  blockA[12] = (fcnt >> 16) & 0xFF;
+  blockA[13] = (fcnt >> 24) & 0xFF;
+  blockA[15] = byte15;
+
+  // Encrypt Block A with AES-ECB
+  const blockS = asmCrypto.AES_ECB.encrypt(blockA, nwkSEncKey);
+
+  // XOR with FOpts
+  const decrypted = new Uint8Array(fopts.length);
+  for (let i = 0; i < fopts.length; i++) {
+    decrypted[i] = fopts[i] ^ blockS[i];
+  }
+
+  return decrypted;
+};
+
+/**
+ * Decrypt FOpts from packet for LoRaWAN 1.1
+ * @param {Array} packetBytes - full packet
+ * @param {Uint8Array} fopts - FOpts from packet
+ * @param {string} nwkSEncKeyHex - NwkSEncKey in HEX
+ * @param {number|null} fcntUpContext - FCntUp from Network Server
+ * @param {number|null} afcntDownContext - AFCntDown from Network Server
+ * @param {number|null} nfcntDownContext - NFCntDown from Network Server
+ * @param {boolean} useErrata - true = errata mode, false = legacy mode
+ * @returns {object} {decrypted: Uint8Array, fcntUsed: number}
+ */
+window.decryptPacketFOpts11 = function(
+  packetBytes,
+  fopts,
+  nwkSEncKeyHex,
+  fcntUpContext,
+  afcntDownContext,
+  nfcntDownContext,
+  useErrata
+) {
+  if (!nwkSEncKeyHex || nwkSEncKeyHex.trim() === "") {
+    throw new Error(I18N.t("errors.required", { name: "NwkSEncKey" }));
+  }
+
+  const nwkSEncKey = new Uint8Array(hexToBytes(nwkSEncKeyHex));
+
+  const mhdr = packetBytes[0];
+  const mtype = mhdr & 0xe0;
+
+  const isUplink = mtype === 0x40 || mtype === 0x80;
+  const direction = isUplink ? 0 : 1;
+
+  const devAddr = new Uint8Array(packetBytes.slice(1, 5));
+  const fctrl = packetBytes[5];
+  const foptsLen = fctrl & 0x0F;
+
+  const packetFCnt = bytesToInt(packetBytes.slice(6, 8));
+
+  // Determine FPort (if present)
+  let fport = null;
+  const fportOffset = 1 + 4 + 1 + 2 + foptsLen; // MHDR + DevAddr + FCtrl + FCnt + FOpts
+  if (packetBytes.length > fportOffset + 4) { // Has FPort
+    fport = packetBytes[fportOffset];
+  }
+
+  // Select appropriate FCnt context
+  let contextFCnt;
+  if (isUplink) {
+    // Uplink: always FCntUp
+    contextFCnt = fcntUpContext;
+  } else {
+    // Downlink: depends on mode and FPort
+    if (useErrata) {
+      // Errata mode: FPort present → AFCntDown, FPort absent → NFCntDown
+      contextFCnt = (fport !== null && fport > 0) ? afcntDownContext : nfcntDownContext;
+    } else {
+      // Legacy mode: always NFCntDown
+      contextFCnt = nfcntDownContext;
+    }
+  }
+
+  const fullFCnt = getFullFCnt(packetFCnt, contextFCnt);
+
+  const decrypted = decryptFOpts11(nwkSEncKey, direction, fport, devAddr, fullFCnt, fopts, useErrata);
+
+  return {
+    decrypted: decrypted,
+    fcntUsed: fullFCnt,
+  };
+};
+
+/**
  * Decrypt FRMPayload for LoRaWAN 1.1 data packets
  * @param {Array} packetBytes - full packet
  * @param {number} fport - FPort from packet

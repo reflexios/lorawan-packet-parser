@@ -190,7 +190,7 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
           <div>
             <label style="font-size: 13px; color: #666; margin-bottom: 5px; display: block;">
               TxDR (uplink MIC only)
@@ -202,6 +202,16 @@
               TxCH (uplink MIC only)
             </label>
             <input type="text" id="txCH" placeholder="example: 3" />
+          </div>
+        </div>
+
+        <div style="margin-top: 15px;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: #4a5568;">
+            <input type="checkbox" id="errataFOpts" style="width: auto;">
+            <span>Use Errata-corrected FOpts encryption</span>
+          </label>
+          <div class="input-hint" style="margin-left: 26px;">
+            By default, uses legacy FOpts encryption (original spec). Enable for errata-corrected behavior.
           </div>
         </div>
       </div>

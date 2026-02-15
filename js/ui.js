@@ -43,6 +43,42 @@ function decodePacket() {
       throw new Error(I18N.t("errors.fcntDownInvalid"));
     }
 
+    // Decrypt FOpts for LoRaWAN 1.1 if present
+    const version = getLoRaWANVersion();
+
+    if (version === "1.1" && packet.FOpts && packet.FOpts.length > 0) {
+      const nwkSEncKeyHex = document.getElementById("nwkSEncKey").value.trim();
+      const errataFOpts = document.getElementById("errataFOpts").checked;
+
+      const fcntUp11Str = document.getElementById("fcntUp11").value.trim();
+      const afcntDownStr = document.getElementById("afcntDown").value.trim();
+      const nfcntDownStr = document.getElementById("nfcntDown").value.trim();
+
+      const fcntUp11Context = fcntUp11Str ? parseInt(fcntUp11Str, 10) : null;
+      const afcntDownContext = afcntDownStr ? parseInt(afcntDownStr, 10) : null;
+      const nfcntDownContext = nfcntDownStr ? parseInt(nfcntDownStr, 10) : null;
+
+      if (nwkSEncKeyHex) {
+        try {
+          const foptsDecryptResult = decryptPacketFOpts11(
+            bytes,
+            packet.FOpts,
+            nwkSEncKeyHex,
+            fcntUp11Context,
+            afcntDownContext,
+            nfcntDownContext,
+            errataFOpts
+          );
+          // Add decrypted FOpts to packet
+          packet.FOptsDecrypted = foptsDecryptResult.decrypted;
+          packet.FOptsDecryptedHex = bytesToHex(Array.from(foptsDecryptResult.decrypted));
+        } catch (e) {
+          console.error("FOpts decrypt error:", e);
+          packet.FOptsDecryptError = e.message;
+        }
+      }
+    }
+
     let micResult = null;
 
     // Check packet type for MIC verification
